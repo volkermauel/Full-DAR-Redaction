@@ -1,0 +1,195 @@
+﻿@page "/ReadARPartI"
+
+@using System.IO
+@using RedactionLibrary
+@inject IJSRuntime JS
+@inject IRedactWordFile RWF
+
+
+<h3>Convert Draft Assessment Report Part I</h3>
+
+Please select each part of the DAR files.
+
+<table class="table table-striped w-auto">
+    <thead>
+        <tr>
+            <th>File Type</th>
+            <th>Select docx template</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Part I Section 1 Introduction – Draft</td>
+            <td><InputFile OnChange="@LoadFiles_I_1"/></td>
+        </tr>
+        <tr>
+            <td>Part I Section 2 Quality Assessment – Draft</td>
+            <td><InputFile OnChange="@LoadFiles_I_2" /></td>
+        </tr>
+                <tr>
+            <td>Part I Section 3 Pre clinical Assessment – Draft</td>
+            <td><InputFile OnChange="@LoadFiles_I_3" /></td>
+        </tr>        <tr>
+            <td>Part I Section 4 Clinical Assessment – Draft</td>
+            <td><InputFile OnChange="@LoadFiles_I_4" /></td>
+        </tr>        <tr>
+            <td>Part I Section 5 Statistical Methodological Assessment – Draft</td>
+            <td><InputFile OnChange="@LoadFiles_I_5" /></td>
+        </tr>        <tr>
+            <td>Part I Section 6 Regulatory Assessment – Draft</td>
+            <td><InputFile OnChange="@LoadFiles_I_6" /></td>
+        </tr>        <tr>
+            <td>Part I Section 7 Conclusion – Draft</td>
+            <td><InputFile OnChange="@LoadFiles_I_7" /></td>
+        </tr>
+    </tbody>
+</table>
+<br />
+<p>@myName</p>
+<button class="btn btn-primary" @onclick="convertWOq">Redact DAR part I without Quality</button>
+<button class="btn btn-primary" @onclick="convertQ">Redact DAR part I Quality</button>
+<p>&nbsp;<br/></p>
+
+
+<h3>Convert Draft Assessment Report Part I</h3>
+Please select the DAR for part II.
+<table class="table table-striped w-auto">
+    <thead>
+        <tr>
+            <th>File Type</th>
+            <th>Select docx template</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Part 2 – Draft</td>
+            <td><InputFile OnChange="@LoadFiles_II"/></td>
+        </tr>
+    </tbody>
+</table>
+<br />
+<p>@myName</p>
+<button class="btn btn-primary" @onclick="convertII">Redact DAR part II</button>
+
+
+
+@code {
+    private string myName { get; set; } = "";
+    private byte[] ar_I_1 { get; set; } = default!;
+    private byte[] ar_I_2 { get; set; } = default!;
+    private byte[] ar_I_3 { get; set; } = default!;
+    private byte[] ar_I_4 { get; set; } = default!;
+    private byte[] ar_I_5 { get; set; } = default!;
+    private byte[] ar_I_6 { get; set; } = default!;
+    private byte[] ar_I_7 { get; set; } = default!;
+    private byte[] ar_II { get; set; } = default!;
+    // Or we can declare the type as nullable:
+    // private byte[]? ar_I_8 { get; set; }
+
+
+    private bool isLoading;
+
+    private async Task LoadFiles_I_1(InputFileChangeEventArgs e)
+    {
+        isLoading = true;
+        //var file = e.File;
+        //var memoryStream = new MemoryStream();
+        //await file.OpenReadStream().CopyToAsync(memoryStream);
+        //ar_I_1 = memoryStream.ToArray();
+        ar_I_1 = await loading(e);
+        isLoading = false;
+    }
+
+
+
+    private async Task LoadFiles_I_2(InputFileChangeEventArgs e)
+    {
+        isLoading = true;
+        ar_I_2 = await loading(e);
+        isLoading = false;
+    }
+    private async Task LoadFiles_I_3(InputFileChangeEventArgs e)
+    {
+        isLoading = true;
+        ar_I_3 = await loading(e);
+        isLoading = false;
+    }
+    private async Task LoadFiles_I_4(InputFileChangeEventArgs e)
+    {
+        isLoading = true;
+        ar_I_4 = await loading(e);
+        isLoading = false;
+
+    }
+    private async Task  LoadFiles_I_5(InputFileChangeEventArgs e)
+    {
+        isLoading = true;
+        ar_I_5 = await loading(e);
+        isLoading = false;
+    }
+    private async Task  LoadFiles_I_6(InputFileChangeEventArgs e)
+    {
+        isLoading = true;
+        ar_I_6 = await loading(e);
+        isLoading = false;
+    }
+    private async Task LoadFiles_I_7(InputFileChangeEventArgs e)
+    {
+        isLoading = true;
+        ar_I_7 = await loading(e);
+        isLoading = false;
+    }
+    private async Task LoadFiles_II(InputFileChangeEventArgs e)
+    {
+        isLoading = true;
+        ar_II = await loading(e);
+        isLoading = false;
+    }
+
+    static async Task<byte[]> loading(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        var memoryStream = new MemoryStream();
+        await file.OpenReadStream().CopyToAsync(memoryStream);
+        return memoryStream.ToArray();
+    }
+
+
+    private async Task convertWOq()
+    {
+        myName = "Part I without Quality redacted";
+        var arI1 = RWF.Redact(ar_I_1);
+        var arI3 = RWF.Redact(ar_I_3);
+        var arI4 = RWF.Redact(ar_I_4);
+        var arI5 = RWF.Redact(ar_I_5);
+        var arI6 = RWF.Redact(ar_I_6);
+        var arI7 = RWF.Redact(ar_I_7);
+        var export = RWF.JoinWithoutQuality(arI1, arI3, arI4, arI5, arI6, arI7);
+        var fileStream = new MemoryStream(export);
+        var fileName = "FAR Part I without quality.docx";
+        using var streamRef = new DotNetStreamReference(stream: fileStream);
+        await JS.InvokeVoidAsync("downloadFileFromStream",fileName,streamRef);
+    }
+
+    private async Task convertII()
+    {
+        myName = "Part II redacted";
+        var arII = RWF.Redact(ar_II);
+        var fileStream = new MemoryStream(arII);
+        var fileName = "FAR Part II redacted.docx";
+        using var streamRef = new DotNetStreamReference(stream: fileStream);
+        await JS.InvokeVoidAsync("downloadFileFromStream",fileName,streamRef);
+    }
+
+        private async Task convertQ()
+    {
+        myName = "Part I Quality redacted";
+        var arII = RWF.Redact(ar_I_2);
+        var fileStream = new MemoryStream(arII);
+        var fileName = "FAR Part I Quality redacted.docx";
+        using var streamRef = new DotNetStreamReference(stream: fileStream);
+        await JS.InvokeVoidAsync("downloadFileFromStream",fileName,streamRef);
+    }
+
+
+}
