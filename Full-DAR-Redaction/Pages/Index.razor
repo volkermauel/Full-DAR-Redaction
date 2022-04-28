@@ -8,7 +8,11 @@
 
 <h3>Convert Draft Assessment Report Part I</h3>
 
-Please select each part of the DAR files.
+Please select each part of the DAR files. Convert the quality part individually below! <br />
+For a substantial modification please upload also the introduction and the conclusion, too. 
+These parts will be redacted and then joined together in a Word file.
+The Word file will have removed the fields "Author" and "Last modified by".
+Because of the difficulties about embedded graphics or individual fonts you have to save the redacted Word file as PDF on your own. 
 
 <table class="table table-striped w-auto">
     <thead>
@@ -22,10 +26,10 @@ Please select each part of the DAR files.
             <td>Part I Section 1 Introduction – Draft</td>
             <td><InputFile OnChange="@LoadFiles_I_1"/></td>
         </tr>
-        <tr>
+@*        <tr>
             <td>Part I Section 2 Quality Assessment – Draft</td>
             <td><InputFile OnChange="@LoadFiles_I_2" /></td>
-        </tr>
+        </tr>*@
                 <tr>
             <td>Part I Section 3 Pre clinical Assessment – Draft</td>
             <td><InputFile OnChange="@LoadFiles_I_3" /></td>
@@ -47,12 +51,12 @@ Please select each part of the DAR files.
 <br />
 <p>@myName</p>
 <button class="btn btn-primary" @onclick="convertWOq">Redact DAR part I without Quality</button>
-<button class="btn btn-primary" @onclick="convertQ">Redact DAR part I Quality</button>
+@*<button class="btn btn-primary" @onclick="convertQ">Redact DAR part I Quality</button>*@
 <p>&nbsp;<br/></p>
 
 
-<h3>Convert Draft Assessment Report Part I</h3>
-Please select the DAR for part II.
+<h3>Convert Draft Assessment Reports individually</h3>
+Please select an individual DAR part for uploading and redaction (e.g. the quality part):
 <table class="table table-striped w-auto">
     <thead>
         <tr>
@@ -62,14 +66,14 @@ Please select the DAR for part II.
     </thead>
     <tbody>
         <tr>
-            <td>Part 2 – Draft</td>
+            <td>One individual part</td>
             <td><InputFile OnChange="@LoadFiles_II"/></td>
         </tr>
     </tbody>
 </table>
 <br />
 <p>@myName</p>
-<button class="btn btn-primary" @onclick="convertII">Redact DAR part II</button>
+<button class="btn btn-primary" @onclick="convertII">Redact DAR part individually</button>
 
 
 
