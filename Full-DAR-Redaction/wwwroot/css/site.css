@@ -62,3 +62,15 @@ a, .btn-link {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
+
+p.haraldDotted {
+    border-style: dotted;
+    color: brown;
+    font-weight: bold;
+}
+
+p.haraldDottedGreen {
+    border-style: dotted;
+    color: darkgreen;
+    font-weight: bold;
+}

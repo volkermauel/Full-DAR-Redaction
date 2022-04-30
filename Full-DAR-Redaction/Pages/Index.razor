@@ -49,13 +49,13 @@ Because of the difficulties about embedded graphics or individual fonts you have
     </tbody>
 </table>
 <br />
-<p>@myName</p>
+<p>@((MarkupString)myName1)</p>
 <button class="btn btn-primary" @onclick="convertWOq">Redact DAR part I without Quality</button>
 @*<button class="btn btn-primary" @onclick="convertQ">Redact DAR part I Quality</button>*@
 <p>&nbsp;<br/></p>
 
 
-<h3>Convert Draft Assessment Reports individually</h3>
+<h3>Convert Draft Assessment Reports Parts individually</h3>
 Please select an individual DAR part for uploading and redaction (e.g. the quality part):
 <table class="table table-striped w-auto">
     <thead>
@@ -72,13 +72,14 @@ Please select an individual DAR part for uploading and redaction (e.g. the quali
     </tbody>
 </table>
 <br />
-<p>@myName</p>
+<p>@((MarkupString)myName2)</p>
 <button class="btn btn-primary" @onclick="convertII">Redact DAR part individually</button>
 
 
 
 @code {
-    private string myName { get; set; } = "";
+    private string myName1 { get; set; } = "<p></p>";
+    private string myName2 { get; set; } = "<p></p>";
     private byte[] ar_I_1 { get; set; } = default!;
     private byte[] ar_I_2 { get; set; } = default!;
     private byte[] ar_I_3 { get; set; } = default!;
@@ -161,33 +162,70 @@ Please select an individual DAR part for uploading and redaction (e.g. the quali
 
     private async Task convertWOq()
     {
-        myName = "Part I without Quality redacted";
-        var arI1 = RWF.Redact(ar_I_1);
-        var arI3 = RWF.Redact(ar_I_3);
-        var arI4 = RWF.Redact(ar_I_4);
-        var arI5 = RWF.Redact(ar_I_5);
-        var arI6 = RWF.Redact(ar_I_6);
-        var arI7 = RWF.Redact(ar_I_7);
+        byte[]? arI1;
+        byte[]? arI2;
+        byte[]? arI3;
+        byte[]? arI4;
+        byte[]? arI5;
+        byte[]? arI6;
+        byte[]? arI7;
+        try
+        {
+            arI1 = RWF.Redact(ar_I_1);
+            arI3 = RWF.Redact(ar_I_3);
+            arI4 = RWF.Redact(ar_I_4);
+            arI5 = RWF.Redact(ar_I_5);
+            arI6 = RWF.Redact(ar_I_6);
+            arI7 = RWF.Redact(ar_I_7);
+        }
+        catch
+        {
+            myName1 = @"<p class=""haraldDotted""><b>Please upload only Microsoft Word files in format docx.</b></p>";
+            return;
+        }
         var export = RWF.JoinWithoutQuality(arI1, arI3, arI4, arI5, arI6, arI7);
+        if (export == null)
+        {
+            myName1 = @"<p class=""haraldDotted""><b>No parts uploaded for redaction. Please upload at least one DAR part.</b></p>";
+            return;
+        }
         var fileStream = new MemoryStream(export);
         var fileName = "FAR Part I without quality.docx";
         using var streamRef = new DotNetStreamReference(stream: fileStream);
+        myName1 = @"<p class=""haraldDottedGreen""><b>The above documents are redacted and joined together in one Word file. If you have enabled automatic saving to a selected location, please check your downloads.</b></p>";
         await JS.InvokeVoidAsync("downloadFileFromStream",fileName,streamRef);
     }
 
     private async Task convertII()
     {
-        myName = "Part II redacted";
-        var arII = RWF.Redact(ar_II);
+        if(ar_II == null)
+        {
+            myName2 = @"<p class=""haraldDotted""><b>Please upload a DAR part for redaction.</b></p>";
+            return;
+        }
+        myName2 = @"<p class=""haraldDottedGreen""><b>The above document is redacted to a new Word file. If you have enabled automatic saving to a selected location, please check your downloads.</b></p>";
+
+        byte[]? arII = null;
+
+        try
+        {
+            arII = RWF.Redact(ar_II);
+        }
+        catch
+        {
+            myName2 = @"<p class=""haraldDotted""><b>Please upload only Microsoft Word files in format docx.</b></p>";
+            return;            
+        }
+
         var fileStream = new MemoryStream(arII);
-        var fileName = "FAR Part II redacted.docx";
+        var fileName = "FAR Part redacted.docx";
         using var streamRef = new DotNetStreamReference(stream: fileStream);
         await JS.InvokeVoidAsync("downloadFileFromStream",fileName,streamRef);
     }
 
-        private async Task convertQ()
+    private async Task convertQ()
     {
-        myName = "Part I Quality redacted";
+        myName2 = "Part I Quality redacted";
         var arII = RWF.Redact(ar_I_2);
         var fileStream = new MemoryStream(arII);
         var fileName = "FAR Part I Quality redacted.docx";
