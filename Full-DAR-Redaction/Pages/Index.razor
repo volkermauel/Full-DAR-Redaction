@@ -155,7 +155,7 @@ Please select an individual DAR part for uploading and redaction (e.g. the quali
     {
         var file = e.File;
         var memoryStream = new MemoryStream();
-        await file.OpenReadStream().CopyToAsync(memoryStream);
+        await file.OpenReadStream(maxAllowedSize: 41943040).CopyToAsync(memoryStream);
         return memoryStream.ToArray();
     }
 

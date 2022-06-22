@@ -150,7 +150,7 @@ Please select the DAR for part II.
     {
         var file = e.File;
         var memoryStream = new MemoryStream();
-        await file.OpenReadStream().CopyToAsync(memoryStream);
+        await file.OpenReadStream(maxAllowedSize: 41943040).CopyToAsync(memoryStream);
         return memoryStream.ToArray();
     }
 
