@@ -8,6 +8,13 @@
 
 <h3>Convert Draft Assessment Report Part I</h3>
 
+@if (isLoading)
+{
+    <div class="progress my-2">
+        <div class="progress-bar" role="progressbar" style="width:@uploadProgress%" aria-valuenow="@uploadProgress" aria-valuemin="0" aria-valuemax="100">@($"{uploadProgress}%")</div>
+    </div>
+}
+
 Please select each part of the DAR files. Convert the quality part individually below! <br />
 For a substantial modification please upload also the introduction and the conclusion, too. 
 These parts will be redacted and then joined together in a Word file.
@@ -93,10 +100,12 @@ Please select an individual DAR part for uploading and redaction (e.g. the quali
 
 
     private bool isLoading;
+    private int uploadProgress;
 
     private async Task LoadFiles_I_1(InputFileChangeEventArgs e)
     {
         isLoading = true;
+        uploadProgress = 0;
         //var file = e.File;
         //var memoryStream = new MemoryStream();
         //await file.OpenReadStream().CopyToAsync(memoryStream);
@@ -110,18 +119,21 @@ Please select an individual DAR part for uploading and redaction (e.g. the quali
     private async Task LoadFiles_I_2(InputFileChangeEventArgs e)
     {
         isLoading = true;
+        uploadProgress = 0;
         ar_I_2 = await loading(e);
         isLoading = false;
     }
     private async Task LoadFiles_I_3(InputFileChangeEventArgs e)
     {
         isLoading = true;
+        uploadProgress = 0;
         ar_I_3 = await loading(e);
         isLoading = false;
     }
     private async Task LoadFiles_I_4(InputFileChangeEventArgs e)
     {
         isLoading = true;
+        uploadProgress = 0;
         ar_I_4 = await loading(e);
         isLoading = false;
 
@@ -129,33 +141,49 @@ Please select an individual DAR part for uploading and redaction (e.g. the quali
     private async Task  LoadFiles_I_5(InputFileChangeEventArgs e)
     {
         isLoading = true;
+        uploadProgress = 0;
         ar_I_5 = await loading(e);
         isLoading = false;
     }
     private async Task  LoadFiles_I_6(InputFileChangeEventArgs e)
     {
         isLoading = true;
+        uploadProgress = 0;
         ar_I_6 = await loading(e);
         isLoading = false;
     }
     private async Task LoadFiles_I_7(InputFileChangeEventArgs e)
     {
         isLoading = true;
+        uploadProgress = 0;
         ar_I_7 = await loading(e);
         isLoading = false;
     }
     private async Task LoadFiles_II(InputFileChangeEventArgs e)
     {
         isLoading = true;
+        uploadProgress = 0;
         ar_II = await loading(e);
         isLoading = false;
     }
 
-    static async Task<byte[]> loading(InputFileChangeEventArgs e)
+    private async Task<byte[]> loading(InputFileChangeEventArgs e)
     {
         var file = e.File;
+        var buffer = new byte[81920];
         var memoryStream = new MemoryStream();
-        await file.OpenReadStream(maxAllowedSize: 41943040).CopyToAsync(memoryStream);
+        await using var stream = file.OpenReadStream(maxAllowedSize: 41943040);
+        long totalRead = 0;
+        int read;
+        while ((read = await stream.ReadAsync(buffer)) > 0)
+        {
+            await memoryStream.WriteAsync(buffer.AsMemory(0, read));
+            totalRead += read;
+            uploadProgress = (int)(100 * totalRead / file.Size);
+            await InvokeAsync(StateHasChanged);
+        }
+        uploadProgress = 100;
+        await InvokeAsync(StateHasChanged);
         return memoryStream.ToArray();
     }
 
